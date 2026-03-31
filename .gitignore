@@ -23,6 +23,7 @@
 # misc
 .DS_Store
 *.pem
+tmp-figma-ref/
 
 # debug
 npm-debug.log*
