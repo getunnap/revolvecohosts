@@ -105,7 +105,9 @@ export default function CohostingMarketing() {
 
           {/* What's Included */}
           <div className="bg-gradient-to-br from-[#10B981]/5 to-[#059669]/5 rounded-3xl p-8 sm:p-12 mb-20">
-            <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12">What's Included</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12">
+              {"What's Included"}
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
               {[
                 'Complete listing optimization & management',
@@ -185,7 +187,11 @@ export default function CohostingMarketing() {
                       <Star key={i} className="w-4 h-4 fill-[#10B981] text-[#10B981]" />
                     ))}
                   </div>
-                  <p className="text-muted-foreground mb-4 italic">"{review.text}"</p>
+                  <p className="text-muted-foreground mb-4 italic">
+                    {"\u201C"}
+                    {review.text}
+                    {"\u201D"}
+                  </p>
                   <div className="pt-4 border-t border-border">
                     <div className="font-bold">{review.name}</div>
                     <div className="text-sm text-muted-foreground mb-2">{review.property}</div>

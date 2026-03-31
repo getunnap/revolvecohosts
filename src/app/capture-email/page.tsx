@@ -27,6 +27,8 @@ export default function CaptureEmailPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    /* sessionStorage is unavailable on the server; reading after mount avoids hydration mismatch */
+    /* eslint-disable react-hooks/set-state-in-effect */
     const raw = sessionStorage.getItem(PENDING_AUDIT_KEY);
     if (!raw) {
       router.replace("/");
@@ -65,6 +67,7 @@ export default function CaptureEmailPage() {
     }
 
     router.replace("/");
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [router]);
 
   function handleEmailSubmit(e: FormEvent) {

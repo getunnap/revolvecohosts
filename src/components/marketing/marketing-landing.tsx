@@ -554,12 +554,14 @@ export default function MarketingLanding() {
                 </div>
 
                 <p className="text-muted-foreground leading-relaxed">
-                  "{testimonial.text}"
+                  {"\u201C"}
+                  {testimonial.text}
+                  {"\u201D"}
                 </p>
 
                 {/* Decorative quote mark */}
                 <div className="absolute bottom-4 right-4 text-6xl text-[#10B981]/10 font-serif leading-none">
-                  "
+                  {"\u201D"}
                 </div>
               </div>
             ))}
@@ -797,26 +799,45 @@ export default function MarketingLanding() {
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><a href="#features" className="hover:text-foreground transition-colors">Features</a></li>
                 <li><a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Case Studies</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Blog</a></li>
+                <li><a href="#faq" className="hover:text-foreground transition-colors">FAQ</a></li>
               </ul>
             </div>
             <div>
               <h4 className="mb-4">Company</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground transition-colors">About</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Blog</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Careers</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Contact</a></li>
+                <li>
+                  <a
+                    href="mailto:hello@revolvecohosts.com"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Contact
+                  </a>
+                </li>
               </ul>
             </div>
             <div>
               <h4 className="mb-4">Legal</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground transition-colors">Privacy</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Terms</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Security</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Cookies</a></li>
+                <li>
+                  <a href="/privacy" className="hover:text-foreground transition-colors">
+                    Privacy
+                  </a>
+                </li>
+                <li>
+                  <a href="/terms" className="hover:text-foreground transition-colors">
+                    Terms
+                  </a>
+                </li>
+                <li>
+                  <a href="/privacy#security" className="hover:text-foreground transition-colors">
+                    Security
+                  </a>
+                </li>
+                <li>
+                  <a href="/privacy#cookies" className="hover:text-foreground transition-colors">
+                    Cookies
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
