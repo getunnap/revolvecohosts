@@ -67,9 +67,25 @@ export default function GeneratingPage() {
             email: pending.email,
           }),
         });
-        const data = await response.json();
+        const raw = await response.text();
+        let data: {
+          error?: string;
+          reportId?: string;
+          freeReport?: unknown;
+          emailSent?: boolean;
+        };
+        try {
+          data = raw ? (JSON.parse(raw) as typeof data) : {};
+        } catch {
+          throw new Error(
+            `Server returned an unexpected response (HTTP ${response.status}). Open Vercel → this project → Logs while retrying.`,
+          );
+        }
         if (!response.ok || !data.reportId) {
-          throw new Error(data.error || "Could not generate pre-report.");
+          throw new Error(
+            data.error ||
+              `Could not generate pre-report (HTTP ${response.status}).`,
+          );
         }
         if (cancelled) return;
 
