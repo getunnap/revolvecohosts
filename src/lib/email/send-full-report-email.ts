@@ -66,8 +66,8 @@ export async function sendFullReportsEmail(params: {
   const resend = new Resend(apiKey);
   const subject =
     params.entries.length > 1
-      ? `Your ${params.entries.length} Revolve listing reports`
-      : "Your Revolve listing optimization report";
+      ? `Your ${params.entries.length} Revolve Co-Hosts listing reports`
+      : "Your Revolve Co-Hosts listing optimization report";
 
   const plain = bundleReportsToMarkdown(params.entries);
 

@@ -78,13 +78,12 @@ export default function GeneratingPage() {
           data = raw ? (JSON.parse(raw) as typeof data) : {};
         } catch {
           throw new Error(
-            `Server returned an unexpected response (HTTP ${response.status}). Open Vercel → this project → Logs while retrying.`,
+            "We couldn’t read the server response. Please try again in a moment.",
           );
         }
         if (!response.ok || !data.reportId) {
           throw new Error(
-            data.error ||
-              `Could not generate pre-report (HTTP ${response.status}).`,
+            data.error || "We couldn’t start your report. Please try again in a moment.",
           );
         }
         if (cancelled) return;

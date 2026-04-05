@@ -21,6 +21,7 @@ import {
   Shield,
   Star,
   TrendingUp,
+  UserRoundSearch,
   Zap,
 } from "lucide-react";
 
@@ -281,7 +282,7 @@ export default function PreReportAnalysis({
                   Want exact fixes for these issues?
                 </div>
                 <div className="text-xs sm:text-sm text-muted-foreground">
-                  Multi-listing pricing available at checkout
+                  Volume pricing if you add more listings
                 </div>
               </div>
               <button
@@ -320,20 +321,43 @@ export default function PreReportAnalysis({
               Ready to fix your listing?
             </h2>
             <p className="text-lg mb-8 opacity-90 max-w-2xl mx-auto">
-              Add more listing URLs if you want volume pricing, then continue to
-              secure Stripe checkout.
+              Unlock the full optimisation report with copy-paste fixes, or get
+              matched with vetted co-hosts if you want someone to run things for
+              you.
             </p>
 
-            <button
-              type="button"
-              onClick={goUnlock}
-              className="bg-white text-[#10B981] px-8 sm:px-12 py-4 sm:py-5 rounded-xl font-bold text-lg sm:text-xl hover:bg-gray-50 transition-all shadow-2xl hover:scale-105 transform inline-flex items-center justify-center gap-2 sm:gap-3"
+            <div
+              className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4 max-w-2xl mx-auto"
+              data-pdf-exclude
             >
-              <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="hidden sm:inline">Continue to unlock (from £3.49)</span>
-              <span className="sm:hidden">Continue</span>
-              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
+              <button
+                type="button"
+                onClick={goUnlock}
+                className="bg-white text-[#10B981] px-8 sm:px-10 py-4 sm:py-5 rounded-xl font-bold text-base sm:text-lg hover:bg-gray-50 transition-all shadow-2xl hover:scale-[1.02] transform inline-flex items-center justify-center gap-2 sm:gap-3"
+              >
+                <Lock className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                <span className="flex flex-col items-center text-center leading-tight">
+                  <span>Unlock full report</span>
+                  <span className="text-sm font-semibold opacity-90 mt-0.5">
+                    from £5.99
+                  </span>
+                </span>
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 hidden sm:block" />
+              </button>
+              <Link
+                href="/find-cohost"
+                className="border-2 border-white/90 text-white px-8 sm:px-10 py-4 sm:py-5 rounded-xl font-bold text-base sm:text-lg hover:bg-white/10 transition-all shadow-xl hover:scale-[1.02] transform inline-flex items-center justify-center gap-2 sm:gap-3"
+              >
+                <UserRoundSearch className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                <span className="flex flex-col items-center text-center leading-tight">
+                  <span>Find a co-host</span>
+                  <span className="text-sm font-semibold opacity-90 mt-0.5 normal-case">
+                    curated matchmaking
+                  </span>
+                </span>
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 hidden sm:block" />
+              </Link>
+            </div>
 
             <div className="flex items-center justify-center gap-3 sm:gap-4 text-xs sm:text-sm opacity-75 flex-wrap mt-6">
               <div className="flex items-center gap-1">
@@ -362,15 +386,15 @@ export default function PreReportAnalysis({
         </div>
 
         <div className="mt-12 text-center">
-          <p className="text-sm text-muted-foreground mb-4">
-            Want hands-off management?
+          <p className="text-sm text-muted-foreground">
+            New to co-hosting?{" "}
+            <Link
+              href="/cohosts"
+              className="text-[#10B981] font-semibold hover:underline"
+            >
+              Learn how it works
+            </Link>
           </p>
-          <Link
-            href="/cohosting"
-            className="inline-flex items-center gap-2 text-[#10B981] font-semibold hover:underline"
-          >
-            Learn about co-hosting →
-          </Link>
         </div>
       </div>
     </div>

@@ -1,13 +1,13 @@
 /**
  * Tiered GBP per-report pricing (pence) aligned with marketing copy:
- * 1–2 reports: £3.49, 3–4: £2.99, 5–9: £2.69, 10+: £2.49.
+ * 1–2 reports: £5.99, 3–4: £4.99, 5–9: £4.29, 10+: £3.99.
  */
 export function reportUnitAmountPence(totalQuantity: number): number {
   const q = Math.floor(totalQuantity);
-  if (q >= 10) return 249;
-  if (q >= 5) return 269;
-  if (q >= 3) return 299;
-  return 349;
+  if (q >= 10) return 399;
+  if (q >= 5) return 429;
+  if (q >= 3) return 499;
+  return 599;
 }
 
 export function formatTierSummary(quantity: number): string {

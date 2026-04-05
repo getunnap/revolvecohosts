@@ -1,6 +1,10 @@
 import { serverErrorResponse } from "@/lib/api-error";
 import { getBaseUrl, getStripe } from "@/lib/stripe";
 import { reportUnitAmountPence } from "@/lib/pricing";
+import {
+  buildListingOptimizationCatalogLineItems,
+  listingOptimizationTiersConfigured,
+} from "@/lib/stripe/listing-optimization-products";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
@@ -15,8 +19,9 @@ const schema = z.object({
 
 export async function POST(request: Request) {
   const configuredPrice = process.env.STRIPE_PRICE_ONE_OFF_GBP_349?.trim();
+  const useListingCatalog = listingOptimizationTiersConfigured();
 
-  if (!process.env.STRIPE_SECRET_KEY || !configuredPrice) {
+  if (!process.env.STRIPE_SECRET_KEY || (!configuredPrice && !useListingCatalog)) {
     return NextResponse.json(
       { error: "Stripe is not fully configured." },
       { status: 500 },
@@ -120,70 +125,98 @@ export async function POST(request: Request) {
           quantity: number;
         }>;
 
-    const useStripePrice =
-      !isGuestReport && qty === 1 && configuredPrice.startsWith("price_");
+    let unitAmountPenceForResponse = reportUnitAmountPence(qty);
 
-    if (useStripePrice) {
-      lineItems = [{ price: configuredPrice, quantity: 1 }];
-    } else if (!isGuestReport && qty === 1 && configuredPrice.startsWith("prod_")) {
-      const product = await stripe.products.retrieve(configuredPrice, {
-        expand: ["default_price"],
-      });
-      const defaultPrice = product.default_price;
-      if (
-        !defaultPrice ||
-        typeof defaultPrice === "string" ||
-        defaultPrice.currency !== "gbp"
-      ) {
-        return NextResponse.json(
-          {
-            error:
-              "Stripe product must have a GBP default price. Set STRIPE_PRICE_ONE_OFF_GBP_349 to a price_ id instead.",
-          },
-          { status: 400 },
-        );
+    if (useListingCatalog) {
+      const built = await buildListingOptimizationCatalogLineItems(stripe, qty);
+      if ("error" in built) {
+        return NextResponse.json({ error: built.error }, { status: 500 });
       }
-      lineItems = [{ price: defaultPrice.id, quantity: 1 }];
-    } else if (!isGuestReport && qty === 1 && !configuredPrice.startsWith("price_")) {
-      const parsedAmount = Number(configuredPrice.replace(/[^0-9.]/g, ""));
-      if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
-        return NextResponse.json(
-          {
-            error:
-              "Invalid STRIPE_PRICE_ONE_OFF_GBP_349 value. Use a Stripe price_ id.",
-          },
-          { status: 400 },
-        );
+      lineItems = built.lineItems;
+      const firstPriceId = built.lineItems[0]?.price;
+      if (firstPriceId) {
+        const price = await stripe.prices.retrieve(firstPriceId);
+        if (typeof price.unit_amount === "number") {
+          unitAmountPenceForResponse = price.unit_amount;
+        }
       }
-      lineItems = [
-        {
-          price_data: {
-            currency: "gbp",
-            unit_amount: Math.round(parsedAmount * 100),
-            product_data: {
-              name: "Full Airbnb Listing Audit",
-            },
-          },
-          quantity: 1,
-        },
-      ];
+    } else if (!configuredPrice) {
+      return NextResponse.json(
+        { error: "Stripe listing price is not configured." },
+        { status: 500 },
+      );
     } else {
-      const unit = reportUnitAmountPence(qty);
-      const tierLabel =
-        qty >= 10 ? "10+ listings tier" : qty >= 5 ? "5–9 listings tier" : qty >= 3 ? "3–4 listings tier" : "1–2 listings";
-      lineItems = [
-        {
-          price_data: {
-            currency: "gbp",
-            unit_amount: unit,
-            product_data: {
-              name: `Full Airbnb listing audit × ${qty}`,
-              description: `£${(unit / 100).toFixed(2)} per report — ${tierLabel}`,
+      const useStripePrice =
+        !isGuestReport && qty === 1 && configuredPrice.startsWith("price_");
+
+      if (useStripePrice) {
+        lineItems = [{ price: configuredPrice, quantity: 1 }];
+      } else if (!isGuestReport && qty === 1 && configuredPrice.startsWith("prod_")) {
+        const product = await stripe.products.retrieve(configuredPrice, {
+          expand: ["default_price"],
+        });
+        const defaultPrice = product.default_price;
+        if (
+          !defaultPrice ||
+          typeof defaultPrice === "string" ||
+          defaultPrice.currency !== "gbp"
+        ) {
+          return NextResponse.json(
+            {
+              error:
+                "Stripe product must have a GBP default price. Set STRIPE_PRICE_ONE_OFF_GBP_349 to a Stripe price_ id instead.",
             },
+            { status: 400 },
+          );
+        }
+        lineItems = [{ price: defaultPrice.id, quantity: 1 }];
+      } else if (!isGuestReport && qty === 1 && !configuredPrice.startsWith("price_")) {
+        const parsedAmount = Number(configuredPrice.replace(/[^0-9.]/g, ""));
+        if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+          return NextResponse.json(
+            {
+              error:
+                "Invalid STRIPE_PRICE_ONE_OFF_GBP_349 value. Use a Stripe price_ id.",
+            },
+            { status: 400 },
+          );
+        }
+        lineItems = [
+          {
+            price_data: {
+              currency: "gbp",
+              unit_amount: Math.round(parsedAmount * 100),
+              product_data: {
+                name: "Full Airbnb Listing Audit",
+              },
+            },
+            quantity: 1,
           },
-          quantity: qty,
-        },
-      ];
+        ];
+      } else {
+        const unit = reportUnitAmountPence(qty);
+        const tierLabel =
+          qty >= 10
+            ? "10+ listings tier"
+            : qty >= 5
+              ? "5-9 listings tier"
+              : qty >= 3
+                ? "3-4 listings tier"
+                : "1-2 listings";
+        lineItems = [
+          {
+            price_data: {
+              currency: "gbp",
+              unit_amount: unit,
+              product_data: {
+                name: `Full Airbnb listing audit × ${qty}`,
+                description: `£${(unit / 100).toFixed(2)} per report — ${tierLabel}`,
+              },
+            },
+            quantity: qty,
+          },
+        ];
+      }
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -227,7 +260,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       checkoutUrl: session.url,
       quantity: qty,
-      unitAmountPence: reportUnitAmountPence(qty),
+      unitAmountPence: unitAmountPenceForResponse,
     });
   } catch (error) {
     return serverErrorResponse(500, "Unable to create checkout session.", error);

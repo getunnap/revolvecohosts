@@ -1,7 +1,7 @@
 "use client";
 
 import { additionalListingsKey } from "@/lib/client-storage";
-import { formatTierSummary } from "@/lib/pricing";
+import { useResetUiAfterBfcache } from "@/hooks/use-reset-ui-after-bfcache";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
@@ -13,10 +13,10 @@ export default function AddListingsPage() {
   const [listingUrls, setListingUrls] = useState<string[]>([""]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  useResetUiAfterBfcache(setLoading, setError);
 
   const validExtras = listingUrls.map((u) => u.trim()).filter(Boolean);
   const quantity = 1 + validExtras.length;
-  const tierLabel = formatTierSummary(quantity);
 
   function addUrlInput() {
     setListingUrls((prev) => [...prev, ""]);
@@ -61,7 +61,8 @@ export default function AddListingsPage() {
       if (!response.ok || !data.checkoutUrl) {
         throw new Error(data.error || "Checkout could not start.");
       }
-      window.location.href = data.checkoutUrl;
+      setLoading(false);
+      window.location.assign(data.checkoutUrl);
     } catch (e) {
       setLoading(false);
       setError(e instanceof Error ? e.message : "Something went wrong.");
@@ -84,10 +85,12 @@ export default function AddListingsPage() {
             </div>
             <h2 className="text-3xl font-bold mb-3">Analyze multiple listings?</h2>
             <p className="text-muted-foreground text-lg">
-              Add extra Airbnb URLs to buy one full audit per listing. Volume
-              pricing applies automatically.
+              Add extra Airbnb URLs to buy one full optimisation per listing. Pricing depends on how
+              many listings you include; you will see the total before you pay.
             </p>
-            <p className="mt-3 text-sm font-medium text-[#10B981]">{tierLabel}</p>
+            <p className="mt-3 text-sm font-medium text-[#10B981]">
+              {quantity} listing{quantity === 1 ? "" : "s"} — total shown before payment
+            </p>
           </div>
 
           <div className="space-y-4 mb-6">

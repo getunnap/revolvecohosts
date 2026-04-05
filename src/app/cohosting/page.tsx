@@ -1,5 +1,6 @@
-import CohostingMarketing from "@/components/marketing/cohosting-marketing";
+import { redirect } from "next/navigation";
 
+/** @deprecated Use /cohosts — kept for existing links */
 export default function CohostingPage() {
-  return <CohostingMarketing />;
+  redirect("/cohosts");
 }
